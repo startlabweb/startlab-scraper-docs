@@ -59,19 +59,45 @@ Puedes copiar el contenido de cada archivo y pegarlo en el SQL Editor. Ejecuta u
 Crea un archivo `.env.local` en la raíz del proyecto con estas variables:
 
 ```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
-SUPABASE_SERVICE_ROLE_KEY=tu-service-role-key
+# ── Supabase ──────────────────────────────────────────────────────
+# Obtener en: supabase.com → tu proyecto → Settings → API
 
-# Cifrado de API keys (genera una cadena aleatoria de 32+ caracteres)
-ENCRYPTION_SECRET=una-cadena-aleatoria-segura-de-32-caracteres
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIs...
 
-# Opcional — protege el endpoint de cron jobs de acceso externo
-CRON_SECRET=otra-cadena-aleatoria
+# ── Cifrado de API keys ───────────────────────────────────────────
+# Cadena aleatoria segura de 32+ caracteres — NUNCA cambiar después del primer deploy
+# Generar con: openssl rand -base64 32
+ENCRYPTION_SECRET=pon-aqui-una-cadena-aleatoria-larga
+
+# ── Cron jobs (opcional) ──────────────────────────────────────────
+# Protege el endpoint /api/cron/run de acceso externo no autorizado
+# Si no lo pones, el auto-schedule seguirá funcionando pero el endpoint es público
+CRON_SECRET=otra-cadena-aleatoria-opcional
+
+# ── Notion (opcional, alternativa a configurar desde la UI) ───────
+# Si prefieres hardcodear Notion en lugar de configurarlo desde Configuración → Notion
+# Token de integración (empieza con "ntn_..." o "secret_...")
+NOTION_TOKEN=ntn_xxxxxxxxxxxxx
+# ID de la base de datos de Notion (32 caracteres de la URL)
+NOTION_DATABASE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-**Importante:** Las API keys de terceros (Anthropic, Apify, ScrapeCreators, etc.) NO van aquí. Se guardan cifradas en Supabase desde la pantalla de configuración de la app.
+### ¿Cómo generar `ENCRYPTION_SECRET`?
+
+**Opción 1 — Terminal:**
+```bash
+openssl rand -base64 32
+```
+
+**Opción 2 — Online:** Usa cualquier generador de strings aleatorios con 32+ caracteres (letras, números, símbolos).
+
+**Importante:** Una vez que guardas API keys desde la app con un `ENCRYPTION_SECRET`, **no lo cambies**. Si lo cambias, las keys guardadas no podrán descifrarse y tendrás que volver a configurarlas todas.
+
+### ¿Qué NO va aquí?
+
+Las API keys de terceros (Anthropic, Apify, ScrapeCreators, Bright Data, YouTube, etc.) **NO van en el `.env.local`**. Se guardan cifradas en Supabase desde **Configuración → API Keys** en la app. Eso permite que cada usuario tenga sus propias keys sin tocar el código.
 
 ---
 
@@ -82,7 +108,7 @@ CRON_SECRET=otra-cadena-aleatoria
 1. Ve a [vercel.com](https://vercel.com) y haz clic en **Add New Project**
 2. Conecta tu cuenta de GitHub y selecciona el repositorio
 3. Vercel detectará automáticamente que es un proyecto Next.js
-4. Antes de hacer deploy, ve a **Environment Variables** y agrega las 4 variables del paso anterior
+4. Antes de hacer deploy, ve a **Environment Variables** y agrega las variables del paso anterior (mínimo las 4 de Supabase + `ENCRYPTION_SECRET`)
 5. Haz clic en **Deploy**
 
 ### Opción B — Desde la CLI de Vercel
